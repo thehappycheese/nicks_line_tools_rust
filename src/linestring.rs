@@ -138,6 +138,41 @@ impl LineStringy for LineString {
 	}
 }
 
+impl From<&Vec<Vector2>> for LineStringMeasured{
+	fn from(other:&Vec<Vector2>) -> Self {
+		let mut sum_mag = 0f64;
+		let mut vec_part: Vec<LineSegmentMeasured> = Vec::with_capacity(other.len() - 1);
+		for (&a, &b) in other.pairwise() {
+			let ab_mag = a.distance_to(b);
+			sum_mag += ab_mag;
+			vec_part.push(LineSegmentMeasured { a, b, mag: ab_mag });
+		}
+		LineStringMeasured {
+			segments: vec_part,
+			mag: sum_mag,
+		}
+	}
+}
+
+impl LineStringMeasured{
+	pub fn from_vec(other:&Vec<Vector2>)->LineStringMeasured{
+		other.into()
+	}
+	pub fn to_line_string(&self)->LineString{
+		self.into()
+	}
+}
+
+impl From<&LineStringMeasured> for LineString{
+	fn from(lsm:&LineStringMeasured)-> LineString{
+		let mut points = Vec::with_capacity(lsm.segments.len()+1);
+		points.extend(lsm.segments.iter().map(|item| item.a));
+		points.push(lsm.segments[lsm.segments.len()-1].b);
+		LineString{points}
+	}
+}
+
+
 impl LineStringy for LineStringMeasured {
 	fn magnitude(&self) -> f64 {
 		return self.mag;
