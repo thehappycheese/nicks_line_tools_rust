@@ -1,7 +1,9 @@
 [package]
 name = "nickslinetoolsrust"
 version = "0.1.0"
-authors = ["runner"]
+authors = ["thehappycheese"]
+repository = "https://github.com/thehappycheese/nicks_line_tools_rust.git"
+readme = "README.MD"
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

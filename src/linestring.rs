@@ -6,17 +6,17 @@ pub struct LineString {
 	pub points: Vec<Vector2>,
 }
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct LineSegmentMeasured {
-	a: Vector2,
-	b: Vector2,
-	mag: f64,
+	pub a: Vector2,
+	pub b: Vector2,
+	pub mag: f64,
 }
 
-#[derive(Clone, Debug,PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct LineStringMeasured {
-	segments: Vec<LineSegmentMeasured>,
-	mag: f64,
+	pub segments: Vec<LineSegmentMeasured>,
+	pub mag: f64,
 }
 
 pub trait LineSegmenty {
@@ -49,9 +49,12 @@ impl LineSegmenty for LineSegmentMeasured {
 pub trait LineStringy {
 	//fn iter_segments(&self) -> std::iter::Zip<std::slice::Iter<Vector2>, std::slice::Iter<Vector2>>;
 	fn magnitude(&self) -> f64;
+
 	fn measured_segments(&self) -> LineStringMeasured;
+
 	fn offset_segments(&self, distance: f64) -> Vec<LineSegmentMeasured>;
-	fn double_cut_linestring(
+
+	fn cut_twice(
 		&self,
 		fraction_of_length_start: f64,
 		fraction_of_length_end: f64,
@@ -60,15 +63,19 @@ pub trait LineStringy {
 		Option<LineStringMeasured>,
 		Option<LineStringMeasured>,
 	);
-	fn cut_linestring(
+
+	fn cut(
 		&self,
 		fraction_of_length: f64,
 	) -> (Option<LineStringMeasured>, Option<LineStringMeasured>);
+
 	fn direction(&self, fraction_of_length: f64) -> f64;
 
 	/// Offset algorithim that performs no cleanup.
-	/// Each segment is offset, then rejoined in the most naieve way.
-	fn basic_offset(&self, distance: f64) -> Option<LineString>;
+	/// Each segment is offset, then rejoined in the most naive way.
+	fn offset_basic(&self, distance: f64) -> Option<LineString>;
+
+	//fn offset(&self, distance: f64) -> Option<LineString>;
 }
 
 impl LineStringy for LineString {
@@ -109,14 +116,15 @@ impl LineStringy for LineString {
 		}
 	}
 
-	fn cut_linestring(
+	fn cut(
 		&self,
 		fraction_of_length: f64,
 	) -> (Option<LineStringMeasured>, Option<LineStringMeasured>) {
 		let mls = self.clone().measured_segments();
-		mls.cut_linestring(fraction_of_length)
+		mls.cut(fraction_of_length)
 	}
-	fn double_cut_linestring(
+
+	fn cut_twice(
 		&self,
 		fraction_of_length_start: f64,
 		fraction_of_length_end: f64,
@@ -126,20 +134,24 @@ impl LineStringy for LineString {
 		Option<LineStringMeasured>,
 	) {
 		let mls = self.clone().measured_segments();
-		mls.double_cut_linestring(fraction_of_length_start, fraction_of_length_end)
+		mls.cut_twice(fraction_of_length_start, fraction_of_length_end)
 	}
 
 	fn direction(&self, fraction_of_length: f64) -> f64 {
 		self.measured_segments().direction(fraction_of_length)
 	}
 
-	fn basic_offset(&self, distance: f64) -> Option<LineString> {
-		self.measured_segments().basic_offset(distance)
+	fn offset_basic(&self, distance: f64) -> Option<LineString> {
+		self.measured_segments().offset_basic(distance)
 	}
+
+	// fn offset(&self, distance: f64) -> Option<LineString> {
+	// 	todo!();
+	// }
 }
 
-impl From<&Vec<Vector2>> for LineStringMeasured{
-	fn from(other:&Vec<Vector2>) -> Self {
+impl From<&Vec<Vector2>> for LineStringMeasured {
+	fn from(other: &Vec<Vector2>) -> Self {
 		let mut sum_mag = 0f64;
 		let mut vec_part: Vec<LineSegmentMeasured> = Vec::with_capacity(other.len() - 1);
 		for (&a, &b) in other.pairwise() {
@@ -154,24 +166,23 @@ impl From<&Vec<Vector2>> for LineStringMeasured{
 	}
 }
 
-impl LineStringMeasured{
-	pub fn from_vec(other:&Vec<Vector2>)->LineStringMeasured{
+impl LineStringMeasured {
+	pub fn from_vec(other: &Vec<Vector2>) -> LineStringMeasured {
 		other.into()
 	}
-	pub fn to_line_string(&self)->LineString{
+	pub fn to_line_string(&self) -> LineString {
 		self.into()
 	}
 }
 
-impl From<&LineStringMeasured> for LineString{
-	fn from(lsm:&LineStringMeasured)-> LineString{
-		let mut points = Vec::with_capacity(lsm.segments.len()+1);
+impl From<&LineStringMeasured> for LineString {
+	fn from(lsm: &LineStringMeasured) -> LineString {
+		let mut points = Vec::with_capacity(lsm.segments.len() + 1);
 		points.extend(lsm.segments.iter().map(|item| item.a));
-		points.push(lsm.segments[lsm.segments.len()-1].b);
-		LineString{points}
+		points.push(lsm.segments[lsm.segments.len() - 1].b);
+		LineString { points }
 	}
 }
-
 
 impl LineStringy for LineStringMeasured {
 	fn magnitude(&self) -> f64 {
@@ -196,11 +207,10 @@ impl LineStringy for LineStringMeasured {
 		self.clone()
 	}
 
-	fn cut_linestring(
+	fn cut(
 		&self,
 		fraction_of_length: f64,
 	) -> (Option<LineStringMeasured>, Option<LineStringMeasured>) {
-		//let (segments, mag) = self;
 		let distance_along = self.mag * fraction_of_length;
 
 		if distance_along <= 0f64 {
@@ -266,7 +276,7 @@ impl LineStringy for LineStringMeasured {
 		return (None, None);
 	}
 
-	fn double_cut_linestring(
+	fn cut_twice(
 		&self,
 		fraction_of_length_start: f64,
 		fraction_of_length_end: f64,
@@ -275,7 +285,7 @@ impl LineStringy for LineStringMeasured {
 		Option<LineStringMeasured>,
 		Option<LineStringMeasured>,
 	) {
-		let (a, bc) = self.cut_linestring(fraction_of_length_start);
+		let (a, bc) = self.cut(fraction_of_length_start);
 		match bc {
 			Some(bc) => {
 				let a_fraction_of_length = f64::max(fraction_of_length_start, 0f64);
@@ -283,9 +293,8 @@ impl LineStringy for LineStringMeasured {
 				// if bc_fraction_of_length <= 0f64 {
 				// 	return (a, None, None)
 				// }
-				let (b, c) = bc.cut_linestring(
-					(fraction_of_length_end - a_fraction_of_length) / bc_fraction_of_length,
-				);
+				let (b, c) =
+					bc.cut((fraction_of_length_end - a_fraction_of_length) / bc_fraction_of_length);
 				(a, b, c)
 			}
 			None => (a, None, None),
@@ -295,7 +304,12 @@ impl LineStringy for LineStringMeasured {
 	fn direction(&self, fraction_of_length: f64) -> f64 {
 		let de_normalised_distance_along = self.mag * fraction_of_length;
 		let mut len_so_far = 0f64;
-		for LineSegmentMeasured{a, b, mag:segment_length} in &self.segments {
+		for LineSegmentMeasured {
+			a,
+			b,
+			mag: segment_length,
+		} in &self.segments
+		{
 			len_so_far += segment_length;
 			if len_so_far >= de_normalised_distance_along {
 				return (b - a).direction();
@@ -304,8 +318,7 @@ impl LineStringy for LineStringMeasured {
 		return 0f64;
 	}
 
-	fn basic_offset(&self, distance: f64) -> Option<LineString> {
-		
+	fn offset_basic(&self, distance: f64) -> Option<LineString> {
 		if self.segments.len() == 0 {
 			return None;
 		}
@@ -313,12 +326,11 @@ impl LineStringy for LineStringMeasured {
 		let offset_segments = self.offset_segments(distance);
 
 		let mut points = Vec::with_capacity(offset_segments.len() + 5);
-		
 		points.push(offset_segments[0].a);
 
 		for (mseg1, mseg2) in offset_segments.pairwise() {
-			let LineSegmentMeasured{a, b, mag:_} = mseg1;
-			let LineSegmentMeasured{a:c, b:d, mag:_} = mseg2;
+			let LineSegmentMeasured { a, b, mag: _ } = mseg1;
+			let LineSegmentMeasured { a: c, b: d, mag: _ } = mseg2;
 			let ab = b - a;
 			let cd = d - c;
 			if ab.cross(cd).abs() < 0.00000001 {
@@ -345,212 +357,16 @@ impl LineStringy for LineStringMeasured {
 					}
 				} else {
 					// Case 2c. (either ab or cd
-						points.push(*b);
-						points.push(*c);
+					points.push(*b);
+					points.push(*c);
 				}
 			}
 		}
 		points.push(offset_segments[offset_segments.len() - 1].b);
-		Some(LineString{points})
-	}
-}
-
-#[cfg(test)]
-mod tests {
-	use crate::linestring::{LineStringy, LineString, LineStringMeasured, LineSegmentMeasured};
-	use crate::vector2::Vector2;
-
-	#[test]
-	fn test_linestring_length() {
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-		]};
-		assert_eq!(ls.magnitude(), 2f64);
+		Some(LineString { points })
 	}
 
-	#[test]
-	fn test_offset_segments() {
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-		]};
-		assert_eq!(
-			ls.offset_segments(1f64),
-			vec![
-				LineSegmentMeasured{a:Vector2::new(0.0, 1.0), b:Vector2::new(1.0, 1.0), mag:1.0f64},
-				LineSegmentMeasured{a:Vector2::new(0.0, 0.0), b:Vector2::new(0.0, 1.0), mag:1.0f64},
-			]
-		);
-	}
-	#[test]
-	fn test_measured() {
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-		]};
-		//println!("{:?}", ls);
-		let ls_m = ls.measured_segments();
-		//println!("{:?}", ls_m);
-		assert_eq!(
-			ls_m,
-			LineStringMeasured{
-				segments:vec![
-					LineSegmentMeasured{a:Vector2::new(0.0, 0.0), b:Vector2::new(1.0, 0.0), mag:1.0f64},
-					LineSegmentMeasured{a:Vector2::new(1.0, 0.0), b:Vector2::new(1.0, 1.0), mag:1.0f64}
-				],
-				mag:2f64
-			}
-		);
-	}
-	#[test]
-	fn test_cut() {
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-			Vector2::new(0.0, 1.0),
-		]};
-		//println!("{:?}", ls);
-		let ls_c = ls.cut_linestring(0.5f64);
-		//println!("{:?}", ls_m);
-		assert_eq!(
-			ls_c,
-			(
-				Some(LineStringMeasured{
-					segments:vec![
-						LineSegmentMeasured{a:Vector2::new(0.0, 0.0), b:Vector2::new(1.0, 0.0), mag:1.0f64},
-						LineSegmentMeasured{a:Vector2::new(1.0, 0.0), b:Vector2::new(1.0, 0.5), mag:0.5f64}
-					],
-					mag:1.5f64
-				}),
-				Some(LineStringMeasured{
-					segments:vec![
-						LineSegmentMeasured{a:Vector2::new(1.0, 0.5), b:Vector2::new(1.0, 1.0), mag:0.5f64},
-						LineSegmentMeasured{a:Vector2::new(1.0, 1.0), b:Vector2::new(0.0, 1.0), mag:1.0f64}
-					],
-					mag:1.5f64
-				})
-			)
-		);
-		let ls_c = ls.cut_linestring(0f64);
-		//println!("{:?}", ls_m);
-		assert_eq!(ls_c, (None, Some(ls.measured_segments())));
-
-		let ls_c = ls.cut_linestring(1f64);
-		//println!("{:?}", ls_m);
-		assert_eq!(ls_c, (Some(ls.measured_segments()), None,));
-
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-			Vector2::new(0.0, 1.0),
-			Vector2::new(0.0, 2.0),
-		]};
-		let (a, b) = ls.cut_linestring(0.5f64);
-		assert_eq!(
-			b,
-			Some(LineStringMeasured{
-				segments:vec![
-					LineSegmentMeasured{a:Vector2::new(1.0, 1.0), b:Vector2::new(0.0, 1.0), mag:1.0f64},
-					LineSegmentMeasured{a:Vector2::new(0.0, 1.0), b:Vector2::new(0.0, 2.0), mag:1.0f64}
-				],
-				mag:2f64
-			})
-		);
-		assert_eq!(
-			a,
-			Some(LineStringMeasured{
-				segments:vec![
-					LineSegmentMeasured{a:Vector2::new(0.0, 0.0), b:Vector2::new(1.0, 0.0), mag:1.0f64},
-					LineSegmentMeasured{a:Vector2::new(1.0, 0.0), b:Vector2::new(1.0, 1.0), mag:1.0f64}
-				],
-				mag:2f64
-			})
-		);
-	}
-
-	#[test]
-	fn test_double_cut() {
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 0.0),
-			Vector2::new(1.0, 1.0),
-			Vector2::new(0.0, 1.0),
-			Vector2::new(0.0, 2.0),
-		]};
-		//println!("{:?}", ls);
-		let (a, b, c) = ls.double_cut_linestring(0.5f64, 0.75f64);
-		assert_eq!(
-			a,
-			Some(LineStringMeasured{
-				segments:vec![
-					LineSegmentMeasured{a:Vector2::new(0.0, 0.0), b:Vector2::new(1.0, 0.0), mag:1.0f64},
-					LineSegmentMeasured{a:Vector2::new(1.0, 0.0), b:Vector2::new(1.0, 1.0), mag:1.0f64}
-				],
-				mag:2f64
-			})
-		);
-		assert_eq!(
-			b,
-			Some(LineStringMeasured{
-				segments:vec![LineSegmentMeasured{a:Vector2::new(1.0, 1.0), b:Vector2::new(0.0, 1.0), mag:1.0f64},],
-				mag:1f64
-			})
-		);
-		assert_eq!(
-			c,
-			Some(LineStringMeasured{
-				segments:vec![LineSegmentMeasured{a:Vector2::new(0.0, 1.0), b:Vector2::new(0.0, 2.0), mag:1.0f64},],
-				mag:1f64
-			})
-		);
-	}
-
-	#[test]
-	fn test_linestring_basic_offset() {
-		// let ls = vec![
-		// 	Vector2::new(0.0, 0.0),
-		// 	Vector2::new(1.0, 0.0),
-		// 	Vector2::new(1.0, 1.0),
-		// ];
-		// let lsos = ls.offset_segments(5f64);
-		// println!("{:?}",lsos);
-		// let lsbo = ls.basic_offset(5f64);
-		// println!("{:?}",lsbo);
-
-		let ls = LineString{points:vec![
-			Vector2::new(0.0, 0.0),
-			Vector2::new(1.0, 1.0),
-			Vector2::new(1.5, 2.0),
-			Vector2::new(1.0, 3.0),
-		]};
-		let lsbo = ls.basic_offset(-0.5f64);
-		println!("{:?}", lsbo);
-		assert_eq!(
-			lsbo,
-			Some(LineString{points:vec![
-				Vector2 {
-					x: 0.35355339059327373,
-					y: -0.35355339059327373
-				},
-				Vector2 {
-					x: 1.4109272075633472,
-					y: 0.7038204263767998
-				},
-				Vector2 {
-					x: 2.0590169943749475,
-					y: 2.0
-				},
-				Vector2 {
-					x: 1.4472135954999579,
-					y: 3.223606797749979
-				}
-			]})
-		);
-	}
+	// fn offset(&self, distance:f64) -> Option<LineString>{
+	// 	todo!();
+	// }
 }
