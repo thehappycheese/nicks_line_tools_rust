@@ -256,7 +256,7 @@ impl LineStringy for LineStringMeasured {
 						b: *b,
 						mag: segment_length - distance_remaining,
 					}];
-					part_2.append(&mut self.segments[index + 1..].to_vec());
+					part_2.append(&mut (self.segments[index + 1..].to_vec()));
 
 					return (
 						Some(LineStringMeasured {
