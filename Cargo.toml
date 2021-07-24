@@ -1,6 +1,6 @@
 [package]
 name = "nickslinetoolsrust"
-version = "0.1.1"
+version = "1.0.0"
 authors = ["thehappycheese"]
 repository = "https://github.com/thehappycheese/nicks_line_tools_rust.git"
 readme = "README.MD"
