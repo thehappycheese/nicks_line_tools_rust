@@ -7,8 +7,8 @@ pub struct LineStringMeasured {
 	pub mag: f64,
 }
 
-impl From<Vec<Vector2>> for LineStringMeasured {
-	fn from(other: Vec<Vector2>) -> Self {
+impl From<&Vec<Vector2>> for LineStringMeasured {
+	fn from(other: &Vec<Vector2>) -> Self {
 		match other.len(){
 			0|1=>LineStringMeasured {
 					segments: Vec::with_capacity(0),
@@ -28,6 +28,12 @@ impl From<Vec<Vector2>> for LineStringMeasured {
 				}
 			}
 		}
+	}
+}
+
+impl From<Vec<Vector2>> for LineStringMeasured {
+	fn from(other: Vec<Vector2>) -> Self {
+		(&other).into()
 	}
 }
 
