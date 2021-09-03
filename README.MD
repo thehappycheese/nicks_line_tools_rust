@@ -10,6 +10,8 @@
 	- [2.4. `.interpolate()`](#24-interpolate)
 	- [2.5. `.offset_basic()`](#25-offset_basic)
 	- [2.6. Converting to `Vec<Vector2>`](#26-converting-to-vecvector2)
+	- [2.7. Converting to `Vec<(f64,f64)>`](#27-converting-to-vecf64f64)
+	- [2.8. Converting to `Vec<(f64,f64,f64)>`](#28-converting-to-vecf64f64f64)
 - [3. Struct `Vector2`](#3-struct-vector2)
 
 ## 1. Introduction
@@ -99,7 +101,41 @@ assert!(
 		Vector2::new(1f64, 0f64),
 		Vector2::new(1f64, 1f64),
 	]
-)
+);
+```
+
+### 2.7. Converting to `Vec<(f64,f64)>`
+
+Use the `into_tuples()` function to convert a multi line string into `Vec<(f64,f64)>` objects.
+
+```rust
+let into_tuples = ls.into_tuples();
+
+assert_eq!(
+	into_tuples,
+	vec![
+		(0f64, 0f64),
+		(1f64, 0f64),
+		(1f64, 1f64),
+	]
+);
+```
+
+### 2.8. Converting to `Vec<(f64,f64,f64)>`
+
+Use the `into_tuples_measured()` function to convert a multi line string into `Vec<(f64,f64,f64)>` objects.
+
+```rust
+let into_tuples_measured = ls.into_tuples_measured(2.0, 10.0);
+
+assert_eq!(
+	into_tuples_measured,
+	vec![
+		(0f64, 0f64, 2f64),
+		(1f64, 0f64, 6f64),
+		(1f64, 1f64, 10f64),
+	]
+);
 ```
 
 ## 3. Struct `Vector2`

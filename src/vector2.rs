@@ -15,6 +15,17 @@ impl Serialize for Vector2 {
 	}
 }
 
+impl Into<(f64,f64)> for &Vector2 {
+	fn into(self)->(f64,f64){
+		(self.x, self.y)
+	}
+}
+// impl From<&Vector2> for (f64,f64) {
+// 	fn from(vec:&Vector2)->Self{
+// 		(vec.x, vec.y)
+// 	}
+// }
+
 impl Vector2 {
 	pub fn new(x: f64, y: f64) -> Vector2 {
 		Vector2 { x, y }
@@ -142,6 +153,13 @@ mod tests {
 		let v = Vector2::new(1.0, 2.0);
 		assert_eq!(v.x, 1.0);
 		assert_eq!(v.y, 2.0);
+	}
+
+	#[test]
+	fn into_tuple() {
+		let v = Vector2::new(1.0, 2.0);
+		let vv:(f64,f64) = (&v).into();
+		assert_eq!(vv, (1.0,2.0));
 	}
 
 	#[test]

@@ -51,8 +51,32 @@ impl Into<Vec<Vector2>> for &LineStringMeasured {
 impl LineStringMeasured {
 
 	/// The into trait is difficult to call without a helper function. All this does is call the into trait.
+	#[deprecated(since="1.2.0", note="please use `into_tuples` or `into_tuples_measured` instead")]
 	pub fn into_vector2(&self) -> Vec<Vector2>{
 		self.into()
+	}
+
+	pub fn into_tuples(&self)-> Vec<(f64,f64)>{
+		let mut result:Vec<(f64,f64)> = self.segments.iter().map(|seg|(&seg.a).into()).collect();
+		if let Some(seg) =  self.segments.last(){
+			result.push((&seg.b).into())
+		}
+		result
+	}
+
+	pub fn into_tuples_measured(&self, from_measure:f64, to_measure:f64) -> Vec<(f64,f64,f64)>{
+		let measure_len = to_measure-from_measure;
+		let scale = measure_len/self.mag;
+		let mut each_measure = from_measure;
+		let mut result:Vec<(f64,f64,f64)> = self.segments.iter().map(|seg|{
+			let result = (seg.a.x, seg.a.y, each_measure);
+			each_measure += seg.mag*scale;
+			result
+		}).collect();
+		if let Some(seg) =  self.segments.last(){
+			result.push((seg.b.x,seg.b.y,to_measure))
+		}
+		result
 	}
 
 	pub fn magnitude(&self) -> f64 {

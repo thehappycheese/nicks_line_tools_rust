@@ -312,3 +312,53 @@ fn test_linestring_conversion_to_vec() {
 		]
 	);
 }
+
+
+#[test]
+fn test_multilinestring_conversion_to_tuples() {
+	let ls:LineStringMeasured = vec![
+		Vector2::new(0.0, 0.0),
+		Vector2::new(1.0, 1.0),
+		Vector2::new(1.5, 2.0),
+		Vector2::new(1.0, 3.0),
+	].into();
+	assert_eq!(
+		ls.into_tuples(),
+		vec![
+			(0.0, 0.0),
+			(1.0, 1.0),
+			(1.5, 2.0),
+			(1.0, 3.0),
+		]
+	);
+}
+
+#[test]
+fn test_multilinestring_conversion_to_measured_tuples() {
+	let ls:LineStringMeasured = vec![
+		Vector2::new(0.0, 0.0),
+		Vector2::new(0.0, 2.0),//2
+		Vector2::new(4.0, 2.0),//4
+		Vector2::new(4.0, 10.0),//8
+	].into();
+	assert_eq!(
+		ls.into_tuples_measured(0.0, 14.0),
+		vec![
+			(0.0, 0.0, 0.0),
+			(0.0, 2.0, 2.0),
+			(4.0, 2.0, 6.0),
+			(4.0, 10.0, 14.0),
+		]
+	);
+
+	assert_eq!(
+		ls.into_tuples_measured(2.0, 30.0),
+		vec![
+			(0.0, 0.0, 2.0),
+			(0.0, 2.0, 6.0),
+			(4.0, 2.0, 14.0),
+			(4.0, 10.0, 30.0),
+		]
+	);
+
+}
