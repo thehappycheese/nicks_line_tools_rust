@@ -24,8 +24,17 @@ This library provides the following structs:
 1. `LineStringMeasured`
 1. `LineSegmentMeasured` (meant for internal use, read source if curious. It is small),
 
-
 Most core functionality is implemented on `LineStringMeasured`.
+
+This is a partial port of my previous python library
+[nicks_line_tools](https://github.com/thehappycheese/nicks_line_tools) 
+which in turn is a partial implementation of the method described by [Xu-Zheng Liu, Jun-Hai Yong, Guo-Qin Zheng, Jia-Guang Sun. An offset algorithm for polyline curves. Computers in Industry, Elsevier, 2007, 15p. inria-00518005](https://hal.inria.fr/inria-00518005/document). I wrote up a decent-ish summary of the psudocode on the python version.
+
+My plan for this repo is to either abandon it and start again, or totally re-write it using the rust geo-types/geo ecosystem as a dependancy.
+My main use for this repo is as a dependancy for my other project [nicklinref_rust](https://github.com/thehappycheese/nicklinref_rust)
+which I am also considering abandoning.
+
+The new hotness is [megalinref](https://github.com/thehappycheese/megalinref) which is a python library built with a rust binary which does the same thing but without the overhead of hosting a rest service on localhost. I need an offsetting algorithim for that project, but I am using geo-types/geos in that project.
 
 ## 2. Struct `LineStringMeasured`
 
@@ -80,7 +89,7 @@ let a:Option<Vector2> = ls.interpolate(0.25f64);
 
 ### 2.5. `.offset_basic()`
 
-Returns Some(LineString) at some offset distance from the original. Returns None
+Returns `Some(LineString)` at some offset distance from the original. Returns `None` if the linestring has fewer than two points.
 
 ```rust
 let c:Option<LineString> = ls.offset_basic(0.5f64);
