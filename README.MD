@@ -34,7 +34,7 @@ My plan for this repo is to either abandon it and start again, or totally re-wri
 My main use for this repo is as a dependancy for my other project [nicklinref_rust](https://github.com/thehappycheese/nicklinref_rust)
 which I am also considering abandoning.
 
-The new hotness is [megalinref](https://github.com/thehappycheese/megalinref) which is a python library built with a rust binary which does the same thing but without the overhead of hosting a rest service on localhost. I need an offsetting algorithim for that project, but I am using geo-types/geos in that project.
+The new hotness is [megalinref](https://github.com/thehappycheese/megalinref) which is a python library built with a rust binary which does the same thing but without the overhead of hosting a rest service on localhost. I need an offsetting algorithim for that project, but I am using `geo-types` / `geo` in that project.
 
 ## 2. Struct `LineStringMeasured`
 
